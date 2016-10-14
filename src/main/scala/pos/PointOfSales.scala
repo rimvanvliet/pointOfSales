@@ -1,5 +1,7 @@
 package pos
 
+import scala.util.{Failure, Try}
+
 object PointOfSales {
 
   type Product = String // just the name of the product
@@ -19,20 +21,25 @@ object PointOfSales {
     }
   }
 
-  private def calculateArticlePrice(quantity: Int, priceList: PriceList): Double = {
+  private def calculateArticlePrice(quantity: Int, priceList: PriceList): Try[Double] = {
     def accCalc(quantity: Int, priceList: PriceList, acc: Double): Double = priceList match {
       case Nil => acc
       case (qty, prc) :: rest => accCalc(quantity % qty, rest, acc + prc * (quantity / qty))
     }
-    accCalc(quantity, priceList.sorted.reverse, 0.0)
+    if (priceList.sorted.head._1 < 1)
+      Failure(new IllegalArgumentException(s"Quantities in a Price must be >= 1 - found: ${priceList.sorted.head._1}"))
+    else if (priceList.sorted.head._1 > 1)
+      Failure(new IllegalArgumentException(s"Pricelist requires a unit price - found: ${priceList.sorted.head._1}"))
+    else
+      Try(accCalc(quantity, priceList.sorted.reverse, 0.0))
   }
 
-  private def calculateBasketPrice(basket: Basket, catalogue: Catalogue): Double = {
-    val articlePrices: Iterable[Double] = for {
+  private def calculateBasketPrice(basket: Basket, catalogue: Catalogue): Try[Double] = {
+    val articlePrices = for {
       (product, quantity) <- basket
       articlePrice = calculateArticlePrice(quantity, catalogue(product))
-    } yield articlePrice
-    articlePrices.sum
+    } yield articlePrice.get
+    Try(articlePrices.sum)
   }
 }
 
@@ -48,5 +55,5 @@ class PointOfSales() {
 
   def scan(product: Product): Unit = basket = addProduct2Basket(product, basket)
 
-  def calculateTotal(): Double = calculateBasketPrice(basket, catalogue)
+  def calculateTotal(): Try[Double] = calculateBasketPrice(basket, catalogue)
 }

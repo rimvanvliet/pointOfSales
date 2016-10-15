@@ -58,6 +58,10 @@ class PointOfSalesSuite extends WordSpec with Matchers {
       val terminal = new PointOfSales
       terminal.setPricing(catalogue2)
       terminal.scan("A")
+      terminal.calculateTotal()
+      // Dit is vreemd. De return type van calculateTotal() is Try[Double], dus dan verwacht ik niet
+      // dat er een functionele fout gegooid wordt via throw, maar dat de fout in de Try zit. Fouten
+      // in een Try is beter, omdat je dan in het type system blijft.
       val thrown = the [IllegalArgumentException] thrownBy terminal.calculateTotal()
       thrown.getMessage should equal ("Pricelist requires a unit price - found: 2")
     }

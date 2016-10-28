@@ -1,16 +1,18 @@
 package pos
 
+import pos.PointOfSales.{BulkPrice, PriceList}
+
+import scala.collection.immutable.SortedSet
+
 /**
   * Created by ruud on 12/10/2016.
   */
 object TestData {
 
-  val priceListA = List((1, 1.25), (3, 3.0))
-  val priceListB = List((1, 4.25))
-  val priceListC = List((1, 1.0), (6, 5.0))
-  val priceListD = List((1, 0.75))
-  val priceList2 = List((2, 0.75))
-  val priceList0 = List((0, 0.75))
+  val priceListA = PriceList(1.25, SortedSet(new BulkPrice(3, 3.00)))
+  val priceListB = PriceList(4.25)
+  val priceListC = PriceList(1.0, SortedSet(new BulkPrice(6, 5.00)))
+  val priceListD = PriceList(0.75)
 
   val catalogue = Map(
     "A" -> priceListA,
@@ -18,9 +20,8 @@ object TestData {
     "C" -> priceListC,
     "D" -> priceListD)
 
-  val catalogue2 = Map(
-    "A" -> priceList2)
+  val priceListZ: PriceList  = PriceList(1.25, SortedSet(BulkPrice(2, 2.0), BulkPrice(4, 3.6)))
 
-  val catalogue0 = Map(
-    "A" -> priceList0)
+  val catalogueZ = Map(
+    "Z" -> priceListZ)
 }
